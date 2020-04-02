@@ -17,9 +17,6 @@ public class SecureAll {
         UserInteraction userInteraction = new UserInteraction();
         userInteraction.setSize(420, 325);
         userInteraction.setVisible(true);
-        System.out.println("Hello World");
-        System.out.print("Buenos dias soy dani");
-
     }
     
 }
