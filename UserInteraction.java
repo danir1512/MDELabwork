@@ -5,17 +5,36 @@
  */
 package secureall;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author João
  */
 public class UserInteraction extends javax.swing.JFrame {
-
     /**
      * Creates new form UserInteraction
      */
-    public UserInteraction() {
+    HomeScreen homeScreen = null;
+    CompanyScreen companyScreen = null;
+    CreateAccount createAccount = null;
+    Connection conn = null;
+    Statement stmt = null;
+    ResultSet rset = null;
+    int clientID = 0;
+    String username = new String();
+    String password = new String();
+    
+    public UserInteraction(Connection conn) throws SQLException {
         initComponents();
+        this.conn = conn;
+        this.stmt = conn.createStatement();
+        this.companyScreen = new CompanyScreen(this);
+        this.createAccount = new CreateAccount(this, this.conn, this.stmt);
     }
 
     /**
@@ -32,6 +51,9 @@ public class UserInteraction extends javax.swing.JFrame {
         UsernameInput = new javax.swing.JTextField();
         PasswordInput = new javax.swing.JPasswordField();
         jLabel1 = new javax.swing.JLabel();
+        CreateAccount = new javax.swing.JButton();
+        LoginButton = new javax.swing.JButton();
+        SecureAllButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -41,27 +63,69 @@ public class UserInteraction extends javax.swing.JFrame {
         UserLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         UserLabel.setText("User");
 
+        UsernameInput.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                UsernameInputActionPerformed(evt);
+            }
+        });
+
+        PasswordInput.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PasswordInputActionPerformed(evt);
+            }
+        });
+
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Secure-All");
+
+        CreateAccount.setText("Sign In");
+        CreateAccount.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CreateAccountActionPerformed(evt);
+            }
+        });
+
+        LoginButton.setText("Login");
+        LoginButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LoginButtonActionPerformed(evt);
+            }
+        });
+
+        SecureAllButton.setText("Secure All Screen");
+        SecureAllButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SecureAllButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(UserLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(PasswordLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(UsernameInput, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
-                    .addComponent(PasswordInput))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(182, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(170, 170, 170))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(UserLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(PasswordLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(CreateAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(LoginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(UsernameInput, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(PasswordInput, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addGap(75, 75, 75))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(SecureAllButton)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -75,12 +139,79 @@ public class UserInteraction extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(PasswordLabel)
                     .addComponent(PasswordInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(204, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(CreateAccount)
+                    .addComponent(LoginButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 135, Short.MAX_VALUE)
+                .addComponent(SecureAllButton)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void UsernameInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UsernameInputActionPerformed
+        
+    }//GEN-LAST:event_UsernameInputActionPerformed
+
+    private void PasswordInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PasswordInputActionPerformed
+        
+    }//GEN-LAST:event_PasswordInputActionPerformed
+
+    private void CreateAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CreateAccountActionPerformed
+        setVisible(false);
+        createAccount.setSize(420, 325);
+        createAccount.setVisible(true);
+    }//GEN-LAST:event_CreateAccountActionPerformed
+
+    private void LoginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginButtonActionPerformed
+        /*try {
+            boolean ok = false;
+            username = UsernameInput.getText();
+            password = new String(PasswordInput.getPassword());
+            ok = confirmLogin(username, password);
+            if(ok){*/
+                this.homeScreen = new HomeScreen(this, clientID);
+                setVisible(false);
+                homeScreen.setSize(420, 325);
+                homeScreen.setVisible(true);
+            /*}
+        } catch (SQLException ex) {
+            Logger.getLogger(UserInteraction.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+    }//GEN-LAST:event_LoginButtonActionPerformed
+
+    private void SecureAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SecureAllButtonActionPerformed
+        setVisible(false);
+        companyScreen.setSize(420, 325);
+        companyScreen.setVisible(true);
+    }//GEN-LAST:event_SecureAllButtonActionPerformed
+    
+    public boolean confirmLogin(String usr, String pass) throws SQLException{
+        boolean isClear = false;
+        String errorMsg = new String();
+        String Query = "Select Username, Password, ClientID from Client";
+        ResultSet rset = stmt.executeQuery(Query);
+        while(rset.next()){
+            if(rset.getString("Username").equals(usr)){
+                if(rset.getString("Password").equals(pass)){
+                    isClear = true;
+                    clientID = rset.getInt("ClientID");
+                }
+                else{
+                   errorMsg = "A password inserida esta incorreta. Tente outra vez.";
+                }
+            }
+            else{ 
+                errorMsg = "O Username que inseriu não existe";
+            }
+        }
+        if(!errorMsg.equals("") && isClear == false){
+            JOptionPane.showMessageDialog(null, "Password e/ou Username Incorretos" + "\n" + errorMsg, "Error", JOptionPane.INFORMATION_MESSAGE);   
+        }
+        return isClear;
+    }
     /**
      * @param args the command line arguments
      */
@@ -97,28 +228,34 @@ public class UserInteraction extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserInteraction.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(UserInteraction.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(UserInteraction.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(UserInteraction.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        /* Create and display the form */
+        /*java.awt.EventQueue.invokeLater(new Runnable() {
+        public void run() {
+        new UserInteraction().setVisible(true);
+        }
+        });*/
+        //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        
+        /*java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new UserInteraction().setVisible(true);
             }
-        });
+        });*/
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton CreateAccount;
+    private javax.swing.JButton LoginButton;
     private javax.swing.JPasswordField PasswordInput;
     private javax.swing.JLabel PasswordLabel;
+    private javax.swing.JButton SecureAllButton;
     private javax.swing.JLabel UserLabel;
     private javax.swing.JTextField UsernameInput;
     private javax.swing.JLabel jLabel1;
